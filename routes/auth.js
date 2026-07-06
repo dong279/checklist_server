@@ -4,12 +4,11 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const db = require('../db');
 
-// 회원가입
 router.post('/register', async (req, res) => {
-  const { username, password } = req.body;
+  const { username, password, name, affiliation, position } = req.body;
 
-  if (!username || !password) {
-    return res.status(400).json({ message: '아이디와 비밀번호를 입력해주세요.' });
+  if (!username || !password || !name || !affiliation || !position) {
+    return res.status(400).json({ message: '아이디, 비밀번호, 이름, 소속, 직책을 입력해주세요.' });
   }
 
   try {
@@ -24,8 +23,8 @@ router.post('/register', async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
     await db.query(
-      'INSERT INTO users (username, password) VALUES (?, ?)',
-      [username, hashedPassword]
+      'INSERT INTO users (username, password, name, affiliation, position) VALUES (?, ?, ?, ?, ?)',
+      [username, hashedPassword, name, affiliation, position]
     );
 
     res.status(201).json({ message: '회원가입 성공' });
@@ -35,7 +34,6 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// 로그인
 router.post('/login', async (req, res) => {
   const { username, password } = req.body;
 
